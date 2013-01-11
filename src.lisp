@@ -48,7 +48,7 @@
                           ":" (collect-string (cddr list))))
 
            (next-name (name)
-             "add:to: -> add::
+             "add:to: -> add:to::
               add:to:: -> add::
               add: -> error"
              (let* ((i (1- (length name)))
@@ -56,8 +56,8 @@
                (unless (char= (char name i) #\:)
                  (error 'bad-message :message message))
                (decf i)
-               (when (char= (char name i) #\:)
-                 (decf i))
+               (unless (char= (char name i) #\:)
+                 (return-from next-name (concatenate 'string name ":")))
                (do () ((char= (char name i) #\:))
                  (decf i)
                  (when (< 0 i)
