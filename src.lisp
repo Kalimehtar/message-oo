@@ -1,28 +1,31 @@
 (in-package #:message-oo)
 
-(defparameter +mangle+ (find-package "MESSAGE-OO.MANGLE"))
+(push :message-oo *features*)
 
-(defun method-name (message-list)
-  "(:add item) -> message-oo.mangle:|ADD:|
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defparameter +mangle+ (find-package "MESSAGE-OO.MANGLE"))
+
+  (defun method-name (message-list)
+    "(:add item) -> message-oo.mangle:|ADD:|
    (:add item :at pos) -> message-oo.mangle:|ADD:AT:|
    :add -> message-oo.mangle:add
    (:add item &rest rest) -> message-oo.mangle:|ADD::|
    (:add item :at pos &rest rest) -> message-oo.mangle:|ADD:AT::|"
-  (labels ((collect-string (list)
-             (unless list
-               (return-from collect-string ""))
-             (concatenate 'string (if (eq (car list) '&rest) 
-                                      "" (string (car list))) 
-                          ":" (collect-string (cddr list)))))                 
-    (intern (if (consp message-list)
-                (collect-string message-list)
-                (string message-list))
-            +mangle+)))
+    (labels ((collect-string (list)
+               (unless list
+                 (return-from collect-string ""))
+               (concatenate 'string (if (eq (car list) '&rest) 
+                                        "" (string (car list))) 
+                            ":" (collect-string (cddr list)))))                 
+      (intern (if (consp message-list)
+                  (collect-string message-list)
+                  (string message-list))
+              +mangle+)))
 
-(defun method-params (message-list)
-  (when (consp message-list)
-    (if (eq (car message-list) '&rest) message-list
-        (cons (second message-list) (method-params (cddr message-list))))))
+  (defun method-params (message-list)
+    (when (consp message-list)
+      (if (eq (car message-list) '&rest) message-list
+          (cons (second message-list) (method-params (cddr message-list)))))))
 
 (defmacro defmessage (class-list message-list &body body)
    "It is smalltalk-like:
@@ -107,6 +110,10 @@
 Example (mapcar (@ '(:+ 3) :fn) (list 1 2 3 4)) => '(4 5 6 7)"
   (multiple-value-bind (generic params) (find-message list)
     (lambda (x) (apply generic x params))))
+(defmessage (any t) (:tap func) 
+  "For debugging like in 
+ (@ obj (:meth1 ...) (:meth2 ...) (:tap (lambda (x) (print x))) (:meth3 ...))"
+  (funcall func) any)
 
 #|
 
