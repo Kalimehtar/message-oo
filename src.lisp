@@ -1,6 +1,6 @@
 (in-package #:message-oo)
 
-(push :message-oo *features*)
+(pushnew :message-oo *features*)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter +mangle+ (find-package "MESSAGE-OO.MANGLE"))
@@ -112,7 +112,8 @@ Example (mapcar (@ '(:+ 3) :fn) (list 1 2 3 4)) => '(4 5 6 7)"
     (lambda (x) (apply generic x params))))
 (defmessage (any t) (:tap func) 
   "For debugging like in 
- (@ obj (:meth1 ...) (:meth2 ...) (:tap (lambda (x) (print x))) (:meth3 ...))"
+ (@ obj (:message1 ...) (:message2 ...) (:tap (lambda (x) (print x))) 
+        (:message3 ...))"
   (funcall func) any)
 
 #|
