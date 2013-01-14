@@ -31,12 +31,15 @@
    "It is smalltalk-like:
  (defmessage container (:add item :after old-item)
    (container-add-after container item old-item))"
-   (destructuring-bind (class-name class-type) 
-       (if (listp class-list) class-list (list class-list class-list))
-   `(cl:defmethod 
-        ,(method-name message-list) ((,class-name ,class-type) 
-                                     . ,(method-params message-list))
-      . ,body)))
+   (let ((method-name (method-name message-list))
+         (method-params (method-params message-list)))
+     (destructuring-bind (class-name class-type) 
+         (if (listp class-list) class-list (list class-list class-list))     
+     `(progn
+        (unless (fboundp ',method-name)
+          (defgeneric ,method-name (object . ,method-params))) 
+        (defmethod ,method-name ((,class-name ,class-type) . ,method-params)
+          . ,body)))))
 
 (define-condition bad-message (error)
   ((message :initarg message)))
