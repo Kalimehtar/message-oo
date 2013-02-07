@@ -56,18 +56,29 @@
            (next-name (name)
              "add:to: -> add:to::
               add:to:: -> add::
-              add: -> error"
+              add: -> add::
+              add:: -> :
+              : -> error"
+             (format t "~a~%" name)
+             (break)
              (let* ((i (1- (length name)))
                     (end i))
-               (unless (char= (char name i) #\:)
+               (when (string= ":" name)
                  (error 'bad-message :message message))
+               ;; add -> :
+               (unless (char= (char name i) #\:)
+                 (return-from next-name ":"))
                (decf i)
+               ;; ...add: -> ...add::
                (unless (char= (char name i) #\:)
                  (return-from next-name (concatenate 'string name ":")))
+               (decf i)
+               ;; aaa:add:: -> aaa::
+               ;; add:: -> :
                (do () ((char= (char name i) #\:))
                  (decf i)
                  (when (< 0 i)
-                   (error 'bad-message :message message)))
+                   (return-from next-name ":")))
                (remove-if (constantly t) name :start (1+ i) :end end)))
 
            (collect-params (message name)
@@ -136,5 +147,10 @@ May have &rest
 
  (defmessage (container cl-container:ordered-list) (:add item &rest rest)
   {here you have vars container, item, rest})
+
+Even 
+
+ (defmessage (container cl-container:ordered-list) (&rest rest)
+  {here catch all unspecified messages})
 
 |#
