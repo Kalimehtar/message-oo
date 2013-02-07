@@ -1,5 +1,7 @@
 (in-package #:message-oo)
 
+(declaim (optimize (debug 3)))
+
 (pushnew :message-oo *features*)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -59,8 +61,6 @@
               add: -> add::
               add:: -> :
               : -> error"
-             (format t "~a~%" name)
-             (break)
              (let* ((i (1- (length name)))
                     (end i))
                (when (string= ":" name)
@@ -77,11 +77,13 @@
                ;; add:: -> :
                (do () ((char= (char name i) #\:))
                  (decf i)
-                 (when (< 0 i)
+                 (when (< i 0)
                    (return-from next-name ":")))
                (remove-if (constantly t) name :start (1+ i) :end end)))
 
            (collect-params (message name)
+             (when (string= ":" name)
+               (return-from collect-params message))
              (do ((i 0 (1+ i)) res was-colon)
                  ((= i (length name)) (nreverse res))
                (if (char= (char name i) #\:)

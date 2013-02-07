@@ -1,7 +1,7 @@
 (asdf:defsystem #:message-oo
   :description "Message-passing Smalltalk-style object system"
   :author "Roman Klochkov <kalimehtar@mail.ru>"
-  :version "0.9.1"
+  :version "0.9.2"
   :license "BSD"
   :components
   ((:file "package")
