@@ -27,7 +27,12 @@
   (defun method-params (message-list)
     (when (consp message-list)
       (if (eq (car message-list) '&rest) message-list
-          (cons (second message-list) (method-params (cddr message-list)))))))
+          (cons (second message-list) (method-params (cddr message-list))))))
+
+  (defun for-generic (method-params)
+    (mapcar (lambda (x)
+              (if (consp x) (car x) x))
+            method-params))))
 
 (defmacro defmessage (class-list message-list &body body)
    "It is smalltalk-like:
@@ -39,7 +44,7 @@
          (if (listp class-list) class-list (list class-list class-list))     
      `(progn
         (unless (fboundp ',method-name)
-          (defgeneric ,method-name (object . ,method-params))) 
+          (defgeneric ,method-name (object . ,(for-generic method-params))))
         (defmethod ,method-name ((,class-name ,class-type) . ,method-params)
           . ,body)))))
 
