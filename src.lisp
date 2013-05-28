@@ -32,7 +32,7 @@
   (defun for-generic (method-params)
     (mapcar (lambda (x)
               (if (consp x) (car x) x))
-            method-params))))
+            method-params)))
 
 (defmacro defmessage (class-list message-list &body body)
    "It is smalltalk-like:
